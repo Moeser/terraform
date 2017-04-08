@@ -22,6 +22,12 @@ func dataSourceAwsEbsVolume() *schema.Resource {
 				Default:  false,
 				ForceNew: true,
 			},
+			"index": {
+				Type:	  schema.TypeInt,
+				Default:  0,
+				Optional: true,
+				ForceNew: true,
+			},
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -112,9 +118,10 @@ func (a volumeSort) Less(i, j int) bool {
 }
 
 func mostRecentVolume(volumes []*ec2.Volume) *ec2.Volume {
+	index := d.Get("index").(int)
 	sortedVolumes := volumes
 	sort.Sort(volumeSort(sortedVolumes))
-	return sortedVolumes[len(sortedVolumes)-1]
+	return sortedVolumes[len(sortedVolumes)-1-index]
 }
 
 func volumeDescriptionAttributes(d *schema.ResourceData, volume *ec2.Volume) error {
